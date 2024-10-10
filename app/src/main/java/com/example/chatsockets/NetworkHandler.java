@@ -2,33 +2,58 @@ package com.example.chatsockets;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.LinkProperties;
 import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class NetworkHandler {
+
+    private NetworkHandler(){
+        throw new IllegalStateException("Utility Class");
+    }
 
     public static String getIpAddres(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
 
-
-        if (networkCapabilities != null){
-            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)){
-                WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                int ipAddress = wifiInfo.getIpAddress();
-                Log.e("IP", "getIpAddres: " + ipAddress);
-                return String.format("%d.%d.%d.%d",
-                        (ipAddress & 0xff),
-                        (ipAddress >> 8 & 0xff),
-                        (ipAddress >> 16 & 0xff),
-                        (ipAddress >> 24 & 0xff));
-
+        if (networkCapabilities != null && networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                LinkProperties linkProperties = connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork());
+                String linkAddress = linkProperties.getLinkAddresses().get(1).toString();
+                Log.i("Cliente", "getIpAddres: " + linkAddress);
+                return linkAddress;
             }
-        }
         return null;
+    }
+
+    public static void pingHost(String host) {
+        new Thread(() -> {
+            try {
+                // Executa o comando de ping
+                Process process = Runtime.getRuntime().exec("ping -c 4 " + host);
+
+                // Lê a saída do comando ping
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
+                StringBuilder output = new StringBuilder();
+                while ((line = reader.readLine()) != null) {
+                    output.append(line).append("\n");
+                }
+
+                // Aguarda o processo terminar e pega o código de saída
+                int exitCode = process.waitFor();
+                if (exitCode == 0) {
+                    Log.i("Ping", "Ping bem-sucedido:\n" + output);
+                } else {
+                    Log.e("Ping", "Ping falhou com código de saída: " + exitCode);
+                }
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+                Log.e("Ping", "Erro ao executar o ping: " + e.getMessage());
+            }
+        }).start();
     }
 }

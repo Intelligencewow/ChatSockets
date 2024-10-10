@@ -17,9 +17,11 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button createConnection, connect;
+    Button createConnection;
+    Button connect;
     String ipAddres;
     String connectToIpAddress;
+    Client client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,29 +36,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Server server = new Server();
-        Client client = new Client();
+        client = new Client();
         ipAddres = NetworkHandler.getIpAddres(MainActivity.this);
-        Log.i("IP", "onCreate: " + ipAddres);
+        Log.i("Myip", "onCreate: " + ipAddres);
         createConnection = findViewById(R.id.createConnectionButton);
         connect = findViewById(R.id.connectButton);
 
-        createConnection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                server.start(4000);
-                Intent intent = new Intent(MainActivity.this,ChatView.class);
-                startActivity(intent);
-            }
+        createConnection.setOnClickListener(v -> {
+            server.start(ipAddres, 8080);
+            Intent intent = new Intent(MainActivity.this,ChatView.class);
+            startActivity(intent);
         });
 
-        connect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog dialog = createDialog();
-                dialog.show();
-                Log.i("IP", "onClick: " + connectToIpAddress);
-                client.connect(connectToIpAddress, 4000);
-            }
+        connect.setOnClickListener(v -> {
+            Log.i("Myip", "Cliquei no botão");
+            AlertDialog dialog = createDialog();
+            dialog.show();
+
         });
 
     }
@@ -67,12 +63,16 @@ public class MainActivity extends AppCompatActivity {
         EditText input = new EditText(this);
         builder.setView(input);
         builder.setPositiveButton("SIM", (dialog, which) -> {
-            connectToIpAddress = input.getText().toString();
-        });
+                    connectToIpAddress = input.getText().toString();
+            Log.i("Myip", "onClick: " + connectToIpAddress);
 
-        builder.setNegativeButton("NÃO", (dialog, which) -> {
-            dialog.dismiss();
-        });
+            client.connect(this,connectToIpAddress, 8080);
+                }
+        );
+
+        builder.setNegativeButton("NÃO", (dialog, which) ->
+            dialog.dismiss()
+        );
 
         return builder.create();
     }

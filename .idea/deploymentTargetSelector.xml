@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DIALOG" />
-        <DropdownSelection timestamp="2024-10-09T00:27:39.924561100Z">
+        <DropdownSelection timestamp="2024-10-10T00:30:02.991216800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=RQCW4067P0F" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\aliss\.android\avd\Nexus_6P_API_34.avd" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -16,11 +16,6 @@
             <Target type="DEFAULT_BOOT">
               <handle>
                 <DeviceId pluginId="PhysicalDevice" identifier="serial=RQCW4067P0F" />
-              </handle>
-            </Target>
-            <Target type="DEFAULT_BOOT">
-              <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=92ddbc85" />
               </handle>
             </Target>
           </targets>

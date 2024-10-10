@@ -1,39 +1,38 @@
 package com.example.chatsockets;
 
-import java.io.BufferedReader;
+import android.util.Log;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
 
 public class Server {
-    Socket socket;
     ServerSocket serverSocket;
+    Socket socket;
 
-    public Server() {}
+    public Server() {
+    }
 
-    public void start(int port) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
+    public void start(String ip, int port) {
+        new Thread(() -> {
+            try {
 
-                    serverSocket = new ServerSocket(port);
+                InetAddress address = InetAddress.getByName(ip);
+                serverSocket = new ServerSocket(port, 50, address);
+                Log.i("Server", "Servidor iniciado no IP " + address + " e porta " + port);
+                socket = serverSocket.accept();
+                socket = serverSocket.accept();
+                Log.i("Server", "O CLIENTE SE CONECTOU");
 
-                    while (true) {
-                        new ClientHandler(serverSocket.accept()).start();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }).start();
     }
 
 
-
+    /*
     public static class ClientHandler extends Thread
     {
         private Socket clientSocket;
@@ -67,4 +66,6 @@ public class Server {
             }
         }
     }
+
+     */
 }
