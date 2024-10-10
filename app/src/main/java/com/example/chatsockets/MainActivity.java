@@ -4,16 +4,19 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     String ipAddres;
     String connectToIpAddress;
     Client client;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
 
         });
+        NetworkHandler.pingHost("192.168.53.171");
 
         Server server = new Server();
         client = new Client();
@@ -42,10 +47,14 @@ public class MainActivity extends AppCompatActivity {
         createConnection = findViewById(R.id.createConnectionButton);
         connect = findViewById(R.id.connectButton);
 
+
+
         createConnection.setOnClickListener(v -> {
-            server.start(ipAddres, 8080);
-            Intent intent = new Intent(MainActivity.this,ChatView.class);
+            //AlertDialog dialog = createWaitForConnectionDialog();
+            //dialog.show();
+            Intent intent = new Intent(this, ChatActivity.class);
             startActivity(intent);
+            //server.start(this,ipAddres, 8080);
         });
 
         connect.setOnClickListener(v -> {
@@ -73,6 +82,16 @@ public class MainActivity extends AppCompatActivity {
         builder.setNegativeButton("NÃO", (dialog, which) ->
             dialog.dismiss()
         );
+
+        return builder.create();
+    }
+
+    private AlertDialog createWaitForConnectionDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Esperando conexão");
+        builder.setMessage("Compartilhe esse ip para o usuário se conectar no seu servidor : " + ipAddres);
+
 
         return builder.create();
     }

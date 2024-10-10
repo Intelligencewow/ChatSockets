@@ -23,7 +23,7 @@ public class NetworkHandler {
         if (networkCapabilities != null && networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                 LinkProperties linkProperties = connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork());
                 String linkAddress = linkProperties.getLinkAddresses().get(1).toString();
-                Log.i("Cliente", "getIpAddres: " + linkAddress);
+                Log.i("Client", "getIpAddres: " + linkAddress);
                 return linkAddress;
             }
         return null;
@@ -32,6 +32,7 @@ public class NetworkHandler {
     public static void pingHost(String host) {
         new Thread(() -> {
             try {
+                Log.i("Client", "pingHost: ");
                 // Executa o comando de ping
                 Process process = Runtime.getRuntime().exec("ping -c 4 " + host);
 
