@@ -50,11 +50,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         createConnection.setOnClickListener(v -> {
-            //AlertDialog dialog = createWaitForConnectionDialog();
-            //dialog.show();
-            Intent intent = new Intent(this, ChatActivity.class);
-            startActivity(intent);
-            //server.start(this,ipAddres, 8080);
+            AlertDialog dialog = createWaitForConnectionDialog();
+            dialog.show();
+            server.start(this,ipAddres, 8080);
+            //Intent intent = new Intent(this, ChatActivity.class);
+            //startActivity(intent);
         });
 
         connect.setOnClickListener(v -> {

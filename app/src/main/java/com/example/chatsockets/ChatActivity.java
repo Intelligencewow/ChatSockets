@@ -16,12 +16,9 @@ import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
 
-    SentMessagesAdapter sentMessagesAdapter;
-    ReceivedMessagesAdapter receivedMessagesAdapter;
-    RecyclerView sentMessagesRecyclerView;
-    RecyclerView receivedMessagesRecyclerView;
-    List<Message> myMessageList;
-    List<Message> theyMessageList;
+    MessagesAdapter messagesAdapter;
+    RecyclerView MessagesRecyclerView;
+    List<Message> MessageList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,29 +33,18 @@ public class ChatActivity extends AppCompatActivity {
 
         Log.i("SentMessage", "onCreate: ChatActivity ");
 
-        sentMessagesRecyclerView = findViewById(R.id.MessageSentRecyclerView);
-        sentMessagesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        MessagesRecyclerView = findViewById(R.id.MessageSentRecyclerView);
+        MessagesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        myMessageList = new ArrayList<>();
-        myMessageList.add(new Message("Olá"));
-        myMessageList.add(new Message("Bom dia"));
-        myMessageList.add(new Message("Boa noite"));
+        MessageList = new ArrayList<>();
+        MessageList.add(new Message("Olá", true));
+        MessageList.add(new Message("Bom dia",false));
+        MessageList.add(new Message("Boa noite",true));
 
-        sentMessagesAdapter = new SentMessagesAdapter(this,myMessageList);
-        sentMessagesRecyclerView.setAdapter(sentMessagesAdapter);
+        messagesAdapter = new MessagesAdapter(this,MessageList);
+        MessagesRecyclerView.setAdapter(messagesAdapter);
         Log.i("SentMessage", "terminei a recyclerVIew ");
 
-        receivedMessagesRecyclerView = findViewById(R.id.MessageReceivedRecyclerView);
-        receivedMessagesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        
-        theyMessageList = new ArrayList<>();
-        theyMessageList.add(new Message("Hello"));
-        theyMessageList.add(new Message("Good Day"));
-        theyMessageList.add(new Message("Good Night"));
-        
-        receivedMessagesAdapter = new ReceivedMessagesAdapter(this, theyMessageList);
-        receivedMessagesRecyclerView.setAdapter(receivedMessagesAdapter);
-        
 
 
     }

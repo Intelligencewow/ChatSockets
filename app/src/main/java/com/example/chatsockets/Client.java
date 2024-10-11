@@ -22,7 +22,10 @@ public class Client {
     public void connect(Context context, String host, int port) {
         new Thread(() -> {
             Log.i("Client", "Tentando se conectar ao servidor em " + host + ":" + port);
-            try (Socket socket = new Socket()) {
+            try {
+                Socket socket = new Socket();
+
+                socket.connect(new InetSocketAddress(host, port), 10000);
 
                 PrintStream out = new PrintStream(socket.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -30,12 +33,11 @@ public class Client {
 
 
                 NetworkHandler.getIpAddres(context);
-                socket.connect(new InetSocketAddress(host, port), 10000);
                 NetworkHandler.getIpAddres(context);
 
                 Log.i("Client", "Conectado ao servidor: " + host + ":" + port);
 
-                Intent intent = new Intent(context, ClientActivity.class);
+                Intent intent = new Intent(context, ChatActivity.class);
                 context.startActivity(intent);
 
             } catch (IOException e) {

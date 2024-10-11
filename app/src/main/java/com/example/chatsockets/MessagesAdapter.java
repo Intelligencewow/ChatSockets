@@ -10,48 +10,90 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
-public class SentMessagesAdapter extends RecyclerView.Adapter<SentMessagesAdapter.SentMessagesViewHolder> {
+public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final Context context;
     private final List<Message> messageList;
 
 
-    public SentMessagesAdapter(Context context, List<Message> messageList) {
+    public MessagesAdapter(Context context, List<Message> messageList) {
         this.context = context;
         this.messageList = messageList;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+
+        Message message = messageList.get(position);
+
+        if (message.isSent()){
+            return 1;
+        }
+        return 0;
+
+    }
+
     @NonNull
     @Override
-    public SentMessagesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Log.i("SentMessage", "onCreateViewHolder: ");
-        View view = LayoutInflater.from(context).inflate(R.layout.message_sent, parent, false);
-        return new SentMessagesViewHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+        if (viewType == 1){
+            View view = LayoutInflater.from(context).inflate(R.layout.message_sent, parent, false);
+            return new sentMessagesViewHolder(view);
+
+        }
+        View view = LayoutInflater.from(context).inflate(R.layout.message_received, parent, false);
+        return new receivedMessageViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SentMessagesAdapter.SentMessagesViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Message message = messageList.get(position);
-        Log.i("SentMessage", "message: " + message.getText());
-        holder.message.setText(message.getText());
+
+        if (holder instanceof sentMessagesViewHolder){
+            ((sentMessagesViewHolder) holder).bind(message);
+        } else {
+            ((receivedMessageViewHolder) holder).bind(message);
+        }
     }
+
 
     @Override
     public int getItemCount() {
         return messageList.size();
     }
 
-    public static class SentMessagesViewHolder extends RecyclerView.ViewHolder {
+    public class sentMessagesViewHolder extends RecyclerView.ViewHolder {
 
         public TextView message;
 
-        public SentMessagesViewHolder(View view) {
+        public sentMessagesViewHolder(View view) {
             super(view);
             Log.i("SentMessage", "SentMessagesViewHolder: ");
             message = view.findViewById(R.id.messageSent);
 
         }
+
+        public void bind(Message message){
+            this.message.setText(message.getText());
+        }
+    }
+
+    public class receivedMessageViewHolder extends RecyclerView.ViewHolder {
+        public TextView message;
+
+        public receivedMessageViewHolder(View view) {
+            super(view);
+            message = view.findViewById(R.id.messageReceived);
+        }
+
+        public void bind(Message message){
+            this.message.setText(message.getText());
+        }
+
     }
 }
