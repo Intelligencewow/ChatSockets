@@ -16,6 +16,7 @@ public class Client{
 
     static Socket socket;
     private MessageListener messageListener;
+    private PrintStream out;
 
     public Client() {}
 
@@ -25,6 +26,9 @@ public class Client{
             try {
                 socket = new Socket();
                 socket.connect(new InetSocketAddress(host, port), 10000);
+
+                out = new PrintStream(socket.getOutputStream());
+                out.println("Macaco");
                 Log.i("Client", "Conectado ao servidor: " + host + ":" + port);
 
                 NetworkHandler.getIpAddres(context);
@@ -40,14 +44,18 @@ public class Client{
 
     public void exchangeMessage(String string) {
 
-        try {
-            PrintStream out = new PrintStream(socket.getOutputStream(), true);
-            out.println(string);
+        new Thread(() -> {
+            try {
+                out = new PrintStream(socket.getOutputStream(), true);
+                out.println(string);
 
-            Log.i("Client", "exchangeMessage: " + string);
-        } catch (IOException e) {
-            Log.e("Client", "exchangeMessage: " + e);
-        }
+                Log.i("Client", "exchangeMessage: " + string);
+            } catch (IOException e) {
+                Log.e("Client", "exchangeMessage: " + e);
+            }
+
+        }).start();
+
     }
 
     public void recieveMessage() {

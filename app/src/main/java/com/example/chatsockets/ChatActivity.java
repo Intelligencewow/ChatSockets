@@ -42,32 +42,32 @@ public class ChatActivity extends AppCompatActivity implements MessageListener{
         Client client = new Client();
         client.setMessageListener(this);
 
-        Log.i("SentMessage", "onCreate: ChatActivity ");
-
         messagesRecyclerView = findViewById(R.id.MessageSentRecyclerView);
         messagesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         messageList = new ArrayList<>();
-        messageList.add(new Message("Olá", true));
-        messageList.add(new Message("Bom dia",false));
-        messageList.add(new Message("Boa noite",true));
 
         messagesAdapter = new MessagesAdapter(this, messageList);
         messagesRecyclerView.setAdapter(messagesAdapter);
-        Log.i("SentMessage", "terminei a recyclerVIew ");
 
        EditText etMessage = findViewById(R.id.TIET_message);
 
-       client.recieveMessage();
-
+       //server.recieveMessage();
+       //client.recieveMessage();
 
 
         etMessage.setOnEditorActionListener((v, actionId, event) -> {
             message = etMessage.getText().toString();
             etMessage.getText().clear();
-            client.exchangeMessage(message);
+            try {
+                client.exchangeMessage(message);
+                addMessage(new Message(message,true));
+
+            } catch (Exception e) {
+                server.exchangeMessage(message);
+                addMessage(new Message(message,false));
+            }
             hideKeyboad(v);
-            addMessage(new Message(message,true));
             return true;
         });
     }
@@ -79,9 +79,12 @@ public class ChatActivity extends AppCompatActivity implements MessageListener{
     }
 
     public void addMessage(Message message){
-        messageList.add(message);
-        messagesAdapter.notifyItemInserted(messageList.size() - 1);
+        Log.i("SERVER", "addMessage: ERa pra funcionar");
+        runOnUiThread(() -> {
+            messageList.add(message);
+            messagesAdapter.notifyItemInserted(messageList.size() - 1);
 
+        });
     }
 
     @Override
