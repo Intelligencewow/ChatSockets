@@ -48,11 +48,10 @@ public class MainActivity extends AppCompatActivity {
         connect = findViewById(R.id.connectButton);
 
 
-
         createConnection.setOnClickListener(v -> {
             AlertDialog dialog = createWaitForConnectionDialog();
             dialog.show();
-            server.start(this,ipAddres, 8080);
+            server.start(this, ipAddres, 8080);
             //Intent intent = new Intent(this, ChatActivity.class);
             //startActivity(intent);
         });
@@ -66,27 +65,27 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private AlertDialog createDialog(){
+    private AlertDialog createDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Insira um IP");
         EditText input = new EditText(this);
         builder.setView(input);
         builder.setPositiveButton("SIM", (dialog, which) -> {
-                    connectToIpAddress = input.getText().toString();
+            connectToIpAddress = input.getText().toString();
             Log.i("Myip", "onClick: " + connectToIpAddress);
-
-            client.connect(this,connectToIpAddress, 8080);
-                }
-        );
+            client.connect(this, connectToIpAddress, 8080);
+            Intent intent = new Intent(this, ChatActivity.class);
+            startActivity(intent);
+        });
 
         builder.setNegativeButton("NÃO", (dialog, which) ->
-            dialog.dismiss()
+                dialog.dismiss()
         );
 
         return builder.create();
     }
 
-    private AlertDialog createWaitForConnectionDialog(){
+    private AlertDialog createWaitForConnectionDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle("Esperando conexão");

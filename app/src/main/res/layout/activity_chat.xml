@@ -43,13 +43,16 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/TIET_message"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:minHeight="50dp"
+            android:maxWidth="400dp"
             android:hint="Mensagem"
-
-
+            android:maxLines="1"
+            android:inputType="text"
             android:imeOptions="actionSend"
-            android:textColor="@color/black"/>
+            android:textColor="@color/black" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

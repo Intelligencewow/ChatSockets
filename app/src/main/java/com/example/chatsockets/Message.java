@@ -1,10 +1,8 @@
 package com.example.chatsockets;
 
-import java.util.UUID;
 
 public class Message {
 
-    private String id;
     private String text;
     private boolean isSent;
 

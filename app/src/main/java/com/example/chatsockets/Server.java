@@ -12,9 +12,10 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Server {
+public class Server{
     ServerSocket serverSocket;
     Socket socket;
+    static MessageListener messageListener;
 
     public Server() {
     }
@@ -24,13 +25,11 @@ public class Server {
             try {
                 Intent intent = new Intent(context, ChatActivity.class);
                 InetAddress address = InetAddress.getByName(ip);
-
-
                 serverSocket = new ServerSocket(port, 50, address);
                 while (true) {
                     Log.i("Server", "Servidor iniciado no IP " + address + " e porta " + port);
-                    context.startActivity(intent);
                     new ClientHandler(serverSocket.accept()).start();
+                    context.startActivity(intent);
                     Log.i("Server", "O CLIENTE SE CONECTOU");
                 }
             } catch (IOException e) {
@@ -39,7 +38,7 @@ public class Server {
         }).start();
     }
 
-    public static class ClientHandler extends Thread {
+    public class ClientHandler extends Thread {
         private Socket clientSocket;
         private PrintWriter out;
         private BufferedReader in;
@@ -55,6 +54,11 @@ public class Server {
 
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
+
+                    if(messageListener != null){
+                        messageListener.onMessageReceived(new Message(inputLine, true));
+                    }
+
                     if (inputLine.equals("bye")) {
                         break;
                     }
@@ -71,5 +75,7 @@ public class Server {
         }
     }
 
-
+    public void setMessageListener(MessageListener messageListener) {
+        this.messageListener = messageListener;
+    }
 }
