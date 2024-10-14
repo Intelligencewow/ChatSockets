@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionListene
         Server server = new Server();
         client = new Client();
         ipAddress = NetworkHandler.getIpAddres(MainActivity.this);
-        Log.i("ChatSocketss", "onCreate: " + ipAddress);
+        Log.i(  "ChatSocketss", "onCreate: " + ipAddress);
         createConnection = findViewById(R.id.createConnectionButton);
         connect = findViewById(R.id.connectButton);
 
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionListene
         createConnection.setOnClickListener(v -> {
             AlertDialog dialog = createWaitForConnectionDialog();
             dialog.show();
-            server.setUserName(userName.getText().toString());
+            Server.setUserName(userName.getText().toString());
             server.start(this, ipAddress, 8080);
         });
 
@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionListene
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Insira um IP");
         EditText input = new EditText(this);
+        input.setSingleLine(true);
         builder.setView(input);
         builder.setPositiveButton("SIM", (dialog, which) -> {
             connectToIpAddress = input.getText().toString();
