@@ -6,26 +6,21 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+
 
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ConnectionListener {
 
     Button createConnection;
     Button connect;
-    String ipAddres;
+    String ipAddress;
     String connectToIpAddress;
     Client client;
     TextInputEditText userName;
@@ -44,11 +39,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         userName = findViewById(R.id.userName);
-        //Log.i("ChatSocketss", "USERNAME: " + userName.getText().toString());
         Server server = new Server();
         client = new Client();
-        ipAddres = NetworkHandler.getIpAddres(MainActivity.this);
-        Log.i("ChatSocketss", "onCreate: " + ipAddres);
+        ipAddress = NetworkHandler.getIpAddres(MainActivity.this);
+        Log.i("ChatSocketss", "onCreate: " + ipAddress);
         createConnection = findViewById(R.id.createConnectionButton);
         connect = findViewById(R.id.connectButton);
 
@@ -57,9 +51,7 @@ public class MainActivity extends AppCompatActivity {
             AlertDialog dialog = createWaitForConnectionDialog();
             dialog.show();
             server.setUserName(userName.getText().toString());
-            server.start(this, ipAddres, 8080);
-            //Intent intent = new Intent(this, ChatActivity.class);
-            //startActivity(intent);
+            server.start(this, ipAddress, 8080);
         });
 
         connect.setOnClickListener(v -> {
@@ -68,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
             dialog.show();
 
         });
-
     }
 
     private AlertDialog createDialog() {
@@ -79,13 +70,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("SIM", (dialog, which) -> {
             connectToIpAddress = input.getText().toString();
             Log.i("ChatSocketss", "onClick: " + connectToIpAddress);
-            client.testConnect(this, connectToIpAddress, 8080);
-            Intent intent = new Intent(this, ClientChatActivity.class);
-            //intent.putExtra("userName", )
-            intent.putExtra("connectToIpAddress", connectToIpAddress);
-            intent.putExtra("Port", 8080);
-            intent.putExtra("userName", userName.getText().toString());
-            startActivity(intent);
+            client.testConnect(connectToIpAddress, 8080, this);
         });
 
         builder.setNegativeButton("NÃO", (dialog, which) ->
@@ -99,9 +84,36 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle("Esperando conexão");
-        builder.setMessage("Compartilhe esse ip para o usuário se conectar no seu servidor : " + ipAddres);
-
+        builder.setMessage("Compartilhe esse ip para o usuário se conectar no seu servidor : " + ipAddress);
 
         return builder.create();
+    }
+
+    private AlertDialog createConnectionFailedDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("A conexão deu erro");
+
+        return builder.create();
+
+    }
+
+    @Override
+    public void onConnectionresult(boolean success) {
+
+        if (success){
+
+            Intent intent = new Intent(this, ClientChatActivity.class);
+            intent.putExtra("connectToIpAddress", connectToIpAddress);
+            intent.putExtra("Port", 8080);
+            intent.putExtra("userName", userName.getText().toString());
+            startActivity(intent);
+
+        } else{
+
+            AlertDialog failure = createConnectionFailedDialog();
+            failure.show();
+
+        }
+
     }
 }

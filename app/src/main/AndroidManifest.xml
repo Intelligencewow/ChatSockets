@@ -17,7 +17,7 @@
         android:theme="@style/Theme.ChatSockets"
         tools:targetApi="31">
         <activity
-            android:name=".ChatActivity"
+            android:name=".ServerChatActivity"
             android:windowSoftInputMode="stateVisible|adjustPan"/>
 
         <activity android:name=".ClientChatActivity"

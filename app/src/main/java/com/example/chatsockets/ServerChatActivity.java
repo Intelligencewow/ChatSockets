@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChatActivity extends AppCompatActivity implements MessageListener {
+public class ServerChatActivity extends AppCompatActivity implements MessageListener {
 
     MessagesAdapter messagesAdapter;
     RecyclerView messagesRecyclerView;
@@ -60,25 +60,23 @@ public class ChatActivity extends AppCompatActivity implements MessageListener {
 
         etMessage.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND || (event != null && event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                // Desativa temporariamente o campo de entrada para evitar múltiplos envios
+
                 etMessage.setEnabled(false);
 
                 message = userName + ":";
                 message = message + etMessage.getText().toString();
 
-                // Verifica se a mensagem não está vazia
                 if (!message.trim().isEmpty()) {
                     Message messageobject = new Message(message, true);
                     addMessage(messageobject);
                     server.exchangeMessage(messageobject.getText(), messageobject.getSender());
-                    hideKeyboad(v);
+                    hideKeyboard(v);
                     etMessage.getText().clear();
                 } else {
                     Log.i("ChatSocketss", "Mensagem vazia não foi enviada.");
                 }
 
-                // Reativa o campo de entrada após 500ms
-                new android.os.Handler().postDelayed(() -> etMessage.setEnabled(true), 300);
+                etMessage.postDelayed(() -> etMessage.setEnabled(true), 300);
 
                 return true;
             }
@@ -88,7 +86,7 @@ public class ChatActivity extends AppCompatActivity implements MessageListener {
 
     }
 
-    public void hideKeyboad(View view) {
+    public void hideKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);

@@ -1,27 +1,35 @@
 package com.example.chatsockets;
 
-import android.content.Context;
 import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
+public class Client {
 
-public class Client{
 
-    static Socket socket;
+    //This was static
+    private Socket socket;
+
     private MessageListener messageListener;
     private PrintStream out;
 
-    public Client() {}
+    private final ExecutorService sendExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService receiveExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService connectExecutor = Executors.newSingleThreadExecutor();
 
-    public void connect(Context context, String host, int port) {
-        new Thread(() -> {
+    public Client() {
+
+    }
+
+    public void connect(String host, int port) {
+        connectExecutor.execute(() -> {
             Log.i("ChatSocketss", "Tentando se conectar ao servidor em " + host + ":" + port);
             try {
                 socket = new Socket();
@@ -38,16 +46,17 @@ public class Client{
                 Log.e("ChatSocketss", "Erro inesperado: " + e.getMessage());
                 throw new RuntimeException(e);
             }
-        }).start();
+        });
     }
 
-    public void testConnect(Context context, String host, int port) {
-        new Thread(() -> {
-            Log.i("ChatSocketss", "Testando Conexão com o servidor: " + host + ":" + port);
+    public void testConnect(String host, int port, ConnectionListener connectionListener) {
+        connectExecutor.execute(() -> {
+            Log.i("ChatSocketss", "Testando conexão com o servidor: " + host + ":" + port);
+            boolean success = false;
             try {
                 socket = new Socket();
                 socket.connect(new InetSocketAddress(host, port), 10000);
-                socket.close();
+                success = true;
 
             } catch (IOException e) {
                 Log.e("ChatSocketss", "Falha ao conectar ao servidor: " + e.getMessage());
@@ -55,38 +64,46 @@ public class Client{
             } catch (Exception e) {
                 Log.e("ChatSocketss", "Erro inesperado: " + e.getMessage());
                 throw new RuntimeException(e);
-            }
-        }).start();
-    }
-
-    public void exchangeMessage(String message, String userName) {
-
-        new Thread(() -> {
-                if (socket != null && !socket.isClosed()) {
-                    Log.i("ChatSocketss", "Mandei mensagem pra fora: " + message);
-                    out.println(userName + ":" + message);
-                } else {
-                    Log.i("ChatSocketss", "O cliente está fechado ou nulo");
-
+            } finally {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-        }).start();
+
+                if (connectionListener != null){
+                    connectionListener.onConnectionresult(success);
+                }
+            }
+        });
+    }
+    public void exchangeMessage(String message, String userName) {
+        sendExecutor.execute(()-> {
+            if (socket != null && !socket.isClosed()) {
+                Log.i("ChatSocketss", "Mandei mensagem pra fora: " + message);
+                out.println(userName + ":" + message);
+            } else {
+                Log.i("ChatSocketss", "O cliente está fechado ou nulo");
+
+            }
+        });
 
     }
 
     public void recieveMessage() {
-        new Thread(() -> {
+        receiveExecutor.execute(() -> {
             try {
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String inputLine;
 
                 while ((inputLine = in.readLine()) != null) {
-                        Log.i("ChatSocketss", "recieveMessage: " + inputLine);
-                        messageListener.onMessageReceived(new Message(inputLine, false));
+                    Log.i("ChatSocketss", "recieveMessage: " + inputLine);
+                    messageListener.onMessageReceived(new Message(inputLine, false));
                 }
             } catch (IOException e) {
                 Log.e("ChatSocketss", "recieveMessageException: " + e);
             }
-        }).start();
+        });
     }
 
     public void setMessageListener(MessageListener messageListener) {

@@ -7,26 +7,28 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server{
     ServerSocket serverSocket;
-    Socket socket;
     static MessageListener messageListener;
-    private static List<PrintWriter> socketoutputs;
+    private static List<PrintWriter> socketoutputs = new ArrayList<>() ;
     private boolean isActivityStarted = false;
     private static String userName;
 
+    private static final ExecutorService sendExecutor = Executors.newSingleThreadExecutor();
+    private static final ExecutorService receiveExecutor = Executors.newSingleThreadExecutor();
 
-    public Server() {
-        this.socketoutputs = new ArrayList<>();
-    }
+
+
+    public Server() {}
 
     public void start(Context context, String ip, int port) {
         new Thread(() -> {
@@ -43,7 +45,7 @@ public class Server{
 
                     if (!isActivityStarted) {
                         isActivityStarted = true;
-                        Intent intent = new Intent(context, ChatActivity.class);
+                        Intent intent = new Intent(context, ServerChatActivity.class);
                         intent.putExtra("userName", userName);
                         context.startActivity(intent);
                     }
@@ -58,7 +60,7 @@ public class Server{
 
     public static void exchangeMessage(String string, String userName, PrintWriter sender) {
 
-        new Thread(() -> {
+        receiveExecutor.execute(() -> {
             for (PrintWriter socket1 : socketoutputs) {
                 if (socket1 != null && socket1 != sender) {
                     socket1.println(string);
@@ -66,14 +68,14 @@ public class Server{
                 }
 
             }
-        }).start();
+        });
 
     }
 
 
     public static void exchangeMessage(String string, String userName) {
 
-        new Thread(() -> {
+         sendExecutor.execute(()-> {
             for (PrintWriter socket1 : socketoutputs) {
                 if (socket1 != null) {
                     socket1.println(userName + ":" +  string);
@@ -81,7 +83,7 @@ public class Server{
                 }
 
             }
-        }).start();
+        });
 
     }
 

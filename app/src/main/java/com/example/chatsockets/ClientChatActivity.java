@@ -46,7 +46,7 @@ public class ClientChatActivity extends AppCompatActivity implements MessageList
         int port = getIntent().getIntExtra("Port", -1);
         userName = getIntent().getStringExtra("userName");
         client = new Client();
-        client.connect(this, ip, port);
+        client.connect(ip, port);
         client.setMessageListener(this);
         messagesRecyclerView = findViewById(R.id.MessageSentRecyclerView);
         messagesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -60,25 +60,23 @@ public class ClientChatActivity extends AppCompatActivity implements MessageList
 
         etMessage.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND || (event != null && event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                // Desativa temporariamente o campo de entrada para evitar múltiplos envios
+
                 etMessage.setEnabled(false);
 
                 message = userName + ":";
                 message = message + etMessage.getText().toString();
 
-                // Verifica se a mensagem não está vazia
                 if (!message.trim().isEmpty()) {
                     Message messageobject = new Message(message, true);
                     addMessage(messageobject);
                     client.exchangeMessage(messageobject.getText(), messageobject.getSender());
-                    hideKeyboad(v);
+                    hideKeyboard(v);
                     etMessage.getText().clear();
                 } else {
                     Log.i("ChatSocketss", "Mensagem vazia não foi enviada.");
                 }
 
-                // Reativa o campo de entrada após 500ms
-                new android.os.Handler().postDelayed(() -> etMessage.setEnabled(true), 300);
+                etMessage.postDelayed(() -> etMessage.setEnabled(true), 300);
 
                 return true;
             }
@@ -88,7 +86,7 @@ public class ClientChatActivity extends AppCompatActivity implements MessageList
 
     }
 
-    public void hideKeyboad(View view) {
+    public void hideKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);

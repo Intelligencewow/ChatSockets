@@ -6,33 +6,31 @@ import java.time.format.DateTimeFormatter;
 
 public class Message {
 
-    private String text;
-    private String sender;
-    private boolean isSent;
-    private String localTime;
+    private final String text;
+    private final String sender;
+    private final boolean isSent;
+    private final String localTime;
 
-    public Message(String text,boolean isSent){
+    public Message(String text, boolean isSent) {
         this.text = getTextFromMessage(text);
         this.sender = getSenderFromMessage(text);
         this.isSent = isSent;
         this.localTime = getTimeFormatted();
     }
 
-    private String getTimeFormatted(){
+    private String getTimeFormatted() {
         LocalTime now = LocalTime.now();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("HH:mm");
-        String TimeFormatted = now.format(format);
 
-        return TimeFormatted;
-
+        return now.format(format);
     }
 
-    private String getTextFromMessage(String message){
+    private String getTextFromMessage(String message) {
         String[] parts = message.split(":", 2);
         return parts[1];
     }
 
-    private String getSenderFromMessage(String message){
+    private String getSenderFromMessage(String message) {
         String[] parts = message.split(":", 2);
         return parts[0];
     }
