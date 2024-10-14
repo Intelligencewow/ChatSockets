@@ -20,7 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChatActivity extends AppCompatActivity implements MessageListener {
+public class ClientChatActivity extends AppCompatActivity implements MessageListener {
+
 
     MessagesAdapter messagesAdapter;
     RecyclerView messagesRecyclerView;
@@ -28,6 +29,7 @@ public class ChatActivity extends AppCompatActivity implements MessageListener {
     Client client;
     String message;
     String userName;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,14 +42,12 @@ public class ChatActivity extends AppCompatActivity implements MessageListener {
             return insets;
         });
 
+        String ip = getIntent().getStringExtra("connectToIpAddress");
+        int port = getIntent().getIntExtra("Port", -1);
         userName = getIntent().getStringExtra("userName");
-
-        Log.i("ChatSocketss", "Username que recebi da intent: " + userName);
-
-        Server server = new Server();
-        server.setUserName(userName);
-        server.setMessageListener(this);
-
+        client = new Client();
+        client.connect(this, ip, port);
+        client.setMessageListener(this);
         messagesRecyclerView = findViewById(R.id.MessageSentRecyclerView);
         messagesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -70,7 +70,7 @@ public class ChatActivity extends AppCompatActivity implements MessageListener {
                 if (!message.trim().isEmpty()) {
                     Message messageobject = new Message(message, true);
                     addMessage(messageobject);
-                    server.exchangeMessage(messageobject.getText(), messageobject.getSender());
+                    client.exchangeMessage(messageobject.getText(), messageobject.getSender());
                     hideKeyboad(v);
                     etMessage.getText().clear();
                 } else {
@@ -106,6 +106,8 @@ public class ChatActivity extends AppCompatActivity implements MessageListener {
 
     @Override
     public void onMessageReceived(Message message) {
+        Log.i("ChatSocketss", "addMessage: Recebi uma mensagem");
         addMessage(message);
     }
 }
+

@@ -51,8 +51,7 @@
             android:hint="Mensagem"
             android:maxLines="1"
             android:inputType="text"
-            android:imeOptions="actionSend"
-            android:textColor="@color/black" />
+            android:imeOptions="actionSend" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

@@ -12,83 +12,84 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Server{
     ServerSocket serverSocket;
     Socket socket;
     static MessageListener messageListener;
-    private PrintStream out;
+    private static List<PrintWriter> socketoutputs;
+    private boolean isActivityStarted = false;
+    private static String userName;
 
 
     public Server() {
+        this.socketoutputs = new ArrayList<>();
     }
 
     public void start(Context context, String ip, int port) {
         new Thread(() -> {
             try {
-                Intent intent = new Intent(context, ChatActivity.class);
                 InetAddress address = InetAddress.getByName(ip);
                 serverSocket = new ServerSocket(port, 50, address);
-                Log.i("Server", "Servidor iniciado no IP " + address + " e porta " + port);
-                socket = serverSocket.accept();
-                context.startActivity(intent);
-                Log.i("Server", "O CLIENTE SE CONECTOU");
-                recieveMessage();
-                /*
-                InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
-                BufferedReader reader = new BufferedReader(inputStreamReader);
-                String x;
-                while ((x = reader.readLine())!= null){
-                    Log.i("SERVER", "cliente: " + x);
-                }*/
+                Log.i("ChatSocketss", "Servidor iniciado no IP " + address + " e porta " + port);
+
+
+                while (true){
+
+                    new ClientHandler(serverSocket.accept()).start();
+                    Log.i("ChatSocketss", "Cliente se conectou;");
+
+                    if (!isActivityStarted) {
+                        isActivityStarted = true;
+                        Intent intent = new Intent(context, ChatActivity.class);
+                        intent.putExtra("userName", userName);
+                        context.startActivity(intent);
+                    }
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }).start();
+        }
+        ).start();
     }
 
-    public void exchangeMessage(String string) {
+    public static void exchangeMessage(String string, String userName, PrintWriter sender) {
 
         new Thread(() -> {
-            try {
-                out = new PrintStream(socket.getOutputStream(), true);
-                out.println(string);
-
-                Log.i("Client", "exchangeMessage: " + string);
-            } catch (IOException e) {
-                Log.e("Client", "exchangeMessage: " + e);
-            }
-
-        }).start();
-
-    }
-    public void recieveMessage() {
-        new Thread(() -> {
-            try {
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String inputLine;
-
-                while ((inputLine = in.readLine()) != null) {
-                    if(messageListener != null){
-                        Log.i("SERVER", "Enviando para o messageLIstener: ");
-                        messageListener.onMessageReceived(new Message(inputLine, false));
-                    }
-                    Log.i("SERVER", "cliente: " + inputLine);
+            for (PrintWriter socket1 : socketoutputs) {
+                if (socket1 != null && socket1 != sender) {
+                    socket1.println(string);
+                    Log.i("ChatSocketss", "Enviei mensagens usando o for: "  + string);
                 }
-            } catch (IOException e) {
-                Log.e("Client", "exchangeMessage: " + e);
+
             }
         }).start();
+
+    }
+
+
+    public static void exchangeMessage(String string, String userName) {
+
+        new Thread(() -> {
+            for (PrintWriter socket1 : socketoutputs) {
+                if (socket1 != null) {
+                    socket1.println(userName + ":" +  string);
+                    Log.i("ChatSocketss", "exchangeMessage: " + userName + ":" +  string);
+                }
+
+            }
+        }).start();
+
     }
 
     public void setMessageListener(MessageListener messageListener) {
         this.messageListener = messageListener;
     }
 
-
-    /*
-    public class ClientHandler extends Thread {
+    public static class ClientHandler extends Thread {
         private Socket clientSocket;
         private PrintWriter out;
         private BufferedReader in;
@@ -98,24 +99,26 @@ public class Server{
         }
 
         public void run() {
-            try {
+
+                try {
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
+                socketoutputs.add(out);
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
                 String inputLine;
+
                 while ((inputLine = in.readLine()) != null) {
-
-                    if(messageListener != null){
-                        messageListener.onMessageReceived(new Message(inputLine, true));
+                    Message messageobject = null;
+                    if (messageListener != null) {
+                        Log.i("ChatSocketss", "Mensagem que recebi: " + inputLine);
+                        messageobject = new Message(inputLine, false);
+                        messageListener.onMessageReceived(messageobject);
                     }
-
-                    if (inputLine.equals("bye")) {
-                        break;
-                    }
-                    out.println(inputLine);
-                    System.out.println(in.readLine());
+                    exchangeMessage(inputLine, messageobject.getSender(), out);
                 }
 
+                Log.i("ChatSocketss", "Um cliente se desconectou");
+
+                socketoutputs.remove(out);
                 in.close();
                 out.close();
                 clientSocket.close();
@@ -123,7 +126,9 @@ public class Server{
                 e.printStackTrace();
             }
         }
-    }*/
+    }
 
-
+    public static void setUserName(String userName) {
+        Server.userName = userName;
+    }
 }

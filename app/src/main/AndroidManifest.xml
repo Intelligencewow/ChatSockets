@@ -19,6 +19,9 @@
         <activity
             android:name=".ChatActivity"
             android:windowSoftInputMode="stateVisible|adjustPan"/>
+
+        <activity android:name=".ClientChatActivity"
+            android:windowSoftInputMode="stateVisible|adjustPan"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

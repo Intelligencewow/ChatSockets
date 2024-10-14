@@ -30,7 +30,7 @@ public class NetworkHandler {
                     InetAddress address = linkadress.getAddress();
                     if (address instanceof Inet4Address){
                         String ipAddress = address.getHostAddress();
-                        Log.i("Client", "getIpAddress: " + ipAddress);
+                        Log.i("ChatSocketss", "getIpAddress: " + ipAddress);
                         return ipAddress;
                     }
                 }
@@ -41,7 +41,7 @@ public class NetworkHandler {
     public static void pingHost(String host) {
         new Thread(() -> {
             try {
-                Log.i("Client", "pingHost: ");
+                Log.i("ChatSocketss", "pingHost: ");
                 // Executa o comando de ping
                 Process process = Runtime.getRuntime().exec("ping -c 4 " + host);
 
@@ -56,13 +56,13 @@ public class NetworkHandler {
                 // Aguarda o processo terminar e pega o código de saída
                 int exitCode = process.waitFor();
                 if (exitCode == 0) {
-                    Log.i("Ping", "Ping bem-sucedido:\n" + output);
+                    Log.i("ChatSocketss", "Ping bem-sucedido:\n" + output);
                 } else {
-                    Log.e("Ping", "Ping falhou com código de saída: " + exitCode);
+                    Log.e("ChatSocketss", "Ping falhou com código de saída: " + exitCode);
                 }
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
-                Log.e("Ping", "Erro ao executar o ping: " + e.getMessage());
+                Log.e("ChatSocketss", "Erro ao executar o ping: " + e.getMessage());
             }
         }).start();
     }

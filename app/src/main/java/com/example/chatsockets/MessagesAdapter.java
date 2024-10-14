@@ -20,7 +20,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private final List<Message> messageList;
 
 
-    public MessagesAdapter(Context context, List<Message> messageList) {
+
+    public MessagesAdapter(Context context,List<Message> messageList) {
         this.context = context;
         this.messageList = messageList;
     }
@@ -70,29 +71,40 @@ public class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public class sentMessagesViewHolder extends RecyclerView.ViewHolder {
 
         public TextView message;
+        public TextView time;
+
 
         public sentMessagesViewHolder(View view) {
             super(view);
             Log.i("SentMessage", "SentMessagesViewHolder: ");
             message = view.findViewById(R.id.messageSent);
+            time = view.findViewById(R.id.sendTime);
 
         }
 
         public void bind(Message message){
             this.message.setText(message.getText());
+            this.time.setText(message.getLocalTime());
+
         }
     }
 
     public class receivedMessageViewHolder extends RecyclerView.ViewHolder {
         public TextView message;
+        public TextView time;
+        public TextView userName;
 
         public receivedMessageViewHolder(View view) {
             super(view);
             message = view.findViewById(R.id.messageReceived);
+            time = view.findViewById(R.id.receivedTime);
+            userName = view.findViewById(R.id.userName);
         }
 
         public void bind(Message message){
             this.message.setText(message.getText());
+            this.time.setText(message.getLocalTime());
+            this.userName.setText(message.getSender());
         }
 
     }

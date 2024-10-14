@@ -22,38 +22,53 @@ public class Client{
 
     public void connect(Context context, String host, int port) {
         new Thread(() -> {
-            Log.i("Client", "Tentando se conectar ao servidor em " + host + ":" + port);
+            Log.i("ChatSocketss", "Tentando se conectar ao servidor em " + host + ":" + port);
             try {
                 socket = new Socket();
                 socket.connect(new InetSocketAddress(host, port), 10000);
 
-                out = new PrintStream(socket.getOutputStream());
-                out.println("Macaco");
-                Log.i("Client", "Conectado ao servidor: " + host + ":" + port);
+                recieveMessage();
+                out = new PrintStream(socket.getOutputStream(), true);
+                Log.i("ChatSocketss", "Conectado ao servidor: " + host + ":" + port);
 
-                NetworkHandler.getIpAddres(context);
             } catch (IOException e) {
-                Log.e("Client", "Falha ao conectar ao servidor: " + e.getMessage());
+                Log.e("ChatSocketss", "Falha ao conectar ao servidor: " + e.getMessage());
                 e.printStackTrace();
             } catch (Exception e) {
-                Log.e("Client", "Erro inesperado: " + e.getMessage());
+                Log.e("ChatSocketss", "Erro inesperado: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }).start();
     }
 
-    public void exchangeMessage(String string) {
+    public void testConnect(Context context, String host, int port) {
+        new Thread(() -> {
+            Log.i("ChatSocketss", "Testando Conexão com o servidor: " + host + ":" + port);
+            try {
+                socket = new Socket();
+                socket.connect(new InetSocketAddress(host, port), 10000);
+                socket.close();
+
+            } catch (IOException e) {
+                Log.e("ChatSocketss", "Falha ao conectar ao servidor: " + e.getMessage());
+                e.printStackTrace();
+            } catch (Exception e) {
+                Log.e("ChatSocketss", "Erro inesperado: " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }).start();
+    }
+
+    public void exchangeMessage(String message, String userName) {
 
         new Thread(() -> {
-            try {
-                out = new PrintStream(socket.getOutputStream(), true);
-                out.println(string);
+                if (socket != null && !socket.isClosed()) {
+                    Log.i("ChatSocketss", "Mandei mensagem pra fora: " + message);
+                    out.println(userName + ":" + message);
+                } else {
+                    Log.i("ChatSocketss", "O cliente está fechado ou nulo");
 
-                Log.i("Client", "exchangeMessage: " + string);
-            } catch (IOException e) {
-                Log.e("Client", "exchangeMessage: " + e);
-            }
-
+                }
         }).start();
 
     }
@@ -65,13 +80,11 @@ public class Client{
                 String inputLine;
 
                 while ((inputLine = in.readLine()) != null) {
-                    if(messageListener != null){
+                        Log.i("ChatSocketss", "recieveMessage: " + inputLine);
                         messageListener.onMessageReceived(new Message(inputLine, false));
-                    }
-                    System.out.println(in.readLine());
                 }
             } catch (IOException e) {
-                Log.e("Client", "exchangeMessage: " + e);
+                Log.e("ChatSocketss", "recieveMessageException: " + e);
             }
         }).start();
     }
@@ -79,6 +92,7 @@ public class Client{
     public void setMessageListener(MessageListener messageListener) {
         this.messageListener = messageListener;
     }
+
 }
 
 
