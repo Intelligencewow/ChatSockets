@@ -1,5 +1,7 @@
 package com.example.chatsockets;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -60,19 +62,21 @@ public class Client {
 
             } catch (IOException e) {
                 Log.e("ChatSocketss", "Falha ao conectar ao servidor: " + e.getMessage());
-                e.printStackTrace();
+
             } catch (Exception e) {
                 Log.e("ChatSocketss", "Erro inesperado: " + e.getMessage());
-                throw new RuntimeException(e);
             } finally {
                 try {
                     socket.close();
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
                 }
 
                 if (connectionListener != null){
-                    connectionListener.onConnectionresult(success);
+                    boolean finalSuccess = success;
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        connectionListener.onConnectionresult(finalSuccess);
+                    });
+
                 }
             }
         });
